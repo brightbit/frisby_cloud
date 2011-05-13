@@ -1,0 +1,2 @@
+Place your Opscode Platform keys and knife.rb in this directory.
+
