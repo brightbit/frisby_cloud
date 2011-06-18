@@ -1,8 +1,8 @@
 #
-# Cookbook Name:: rvm
-# Attribute File:: default
+# Cookbook Name:: ruby
+# Recipe:: symlinks
 #
-# Copyright 2011, Paper Cavalier
+# Copyright 2010, FindsYou Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,4 @@
 # limitations under the License.
 #
 
-default[:rvm][:rubies] = ["ree"]
-default[:rvm][:default] = "ree"
-
+ruby_symlinks node[:languages][:ruby][:default_version] || "1.8"

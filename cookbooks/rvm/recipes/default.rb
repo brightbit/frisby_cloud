@@ -1,46 +1,43 @@
 #
 # Cookbook Name:: rvm
 # Recipe:: default
+#
+# Copyright 2011, Papercavalier
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-# Make sure that the package list is up to date on Ubuntu/Debian.
-include_recipe "apt" if [ 'debian', 'ubuntu' ].member? node[:platform]
+include_recipe "git"
 
-# Make sure we have all we need to compile ruby implementations:
 package "curl"
-package "git-core"
-include_recipe "build-essential"
- 
-%w(libreadline5-dev zlib1g-dev libssl-dev libxml2-dev libxslt1-dev).each do |pkg|
-  package pkg
-end
- 
-bash "installing system-wide RVM stable" do
-  user "root"
-  code "bash < <( curl -L http://bit.ly/rvm-install-system-wide )"
-  not_if "which rvm"
-end
 
-bash "upgrading to RVM head" do
-  user "root"
-  code "rvm update --head ; rvm reload"
-  only_if { node[:rvm][:version] == :head }
-  only_if { node[:rvm][:track_updates] }
-end
+# Ensure packages required by MRI are installed
+if platform?("debian", "ubuntu")
+  %w{bison openssl libreadline5 libreadline5-dev zlib1g zlib1g-dev libssl-dev
+     libsqlite3-0 libsqlite3-dev sqlite3 libxml2-dev}
+elsif platform?("centos", "redhat", "fedora", "suse")
+  %w{patch readline readline-devel zlib zlib-devel libyaml-devel libffi-devel
+     iconv-devel}
+else
+  []
+end.each { |name| package name }
 
-bash "upgrading RVM stable" do
-  user "root"
-  code "rvm update ; rvm reload"
-  only_if { node[:rvm][:track_updates] }
-end
+install_rvm
 
-cookbook_file "/etc/profile.d/rvm.sh" do
-  owner "root"
-  group "root"
-  mode 0755
-end
+node["rvm"]["rubies"].each { |ruby| install_ruby ruby }
 
-cookbook_file "/usr/local/bin/rvm-gem.sh" do
-  owner "root"
-  group "root"
-  mode 0755
+if node["rvm"]["default"]
+  bash "set default ruby in rvm" do
+    code "/usr/local/rvm/bin/rvm use #{node["rvm"]["default"]} --default"
+  end
 end

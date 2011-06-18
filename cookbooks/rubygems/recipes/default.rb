@@ -1,8 +1,9 @@
 #
-# Cookbook Name:: rvm
-# Attribute File:: default
+# Author:: Adam Jacob <adam@opscode.com>
+# Cookbook Name:: rubygems
+# Recipe:: default
 #
-# Copyright 2011, Paper Cavalier
+# Copyright 2009-2010, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +18,6 @@
 # limitations under the License.
 #
 
-default[:rvm][:rubies] = ["ree"]
-default[:rvm][:default] = "ree"
-
+execute "gem sources --add http://rubygems.org" do
+  not_if "gem sources --list | grep 'http://rubygems.org'"
+end

@@ -1,8 +1,8 @@
 #
-# Cookbook Name:: rvm
-# Attribute File:: default
+# Cookbook Name:: god
+# Recipe:: default
 #
-# Copyright 2011, Paper Cavalier
+# Copyright 2009, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,25 @@
 # limitations under the License.
 #
 
-default[:rvm][:rubies] = ["ree"]
-default[:rvm][:default] = "ree"
+include_recipe "ruby"
+include_recipe "runit"
 
+gem_package "god" do
+  action :install
+end
+
+directory "/etc/god/conf.d" do
+  recursive true
+  owner "root"
+  group "root"
+  mode 0755
+end
+
+template "/etc/god/master.god" do
+  source "master.god.erb"
+  owner "root"
+  group "root"
+  mode 0755
+end
+
+runit_service "god"
